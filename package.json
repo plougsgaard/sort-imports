@@ -7,6 +7,10 @@
   "author": "npm@plougsgaard.dk",
   "license": "MIT",
   "private": false,
+  "bin": {
+    "sort-imports": "./bin/index.js"
+  },
+  "preferGlobal": true,
   "dependencies": {
     "jscodeshift": "0.6.3",
     "lodash": "4.17.11"
