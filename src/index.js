@@ -1,4 +1,6 @@
 var _ = require('lodash/fp')
+var Runner = require('jscodeshift/dist/Runner')
+var path = require('path')
 
 function cli (argumentVector) {
   var userInput = _.first(argumentVector)
@@ -8,7 +10,7 @@ function cli (argumentVector) {
     return
   }
 
-  console.log('Program ran fine with these arguments', userInput)
+  Runner.run(path.resolve(__dirname, './sortImports.js'), [userInput], {})
 }
 
 module.exports = cli
