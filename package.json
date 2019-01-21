@@ -6,5 +6,8 @@
   "repository": "github.com/plougsgaard/sort-imports",
   "author": "npm@plougsgaard.dk",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "dependencies": {
+    "jscodeshift": "0.6.3"
+  }
 }
