@@ -1,20 +1,19 @@
 const _ = require('lodash/fp')
 
+// the s flag makes it so . matches newlines as well (new feature)
+let expression = new RegExp('(.*\\{)(.*)(\\}.*)', 's')
+
 let transform = function (j, root) {
   let importStatements = []
   root.find(j.ImportDeclaration).forEach(
     s => {
       const moduleName = s.value.source.value // e.g. 'lodash/fp'
-      let statementSource = _.flow(
-        _.replace(/\n/g, ' '),
-        _.replace(/\s{2,}/g, ' '),
-        _.replace(
-          /(.*\{)(.*)(\}.*)/,
-          (match, g1, g2, g3) =>
-            g1 + ' ' +  _.flow(_.split(','), _.map(_.trim), _.sortBy(_.identity), _.join(', '))(g2) + ' ' + g3
-        )
-      )(j(s).toSource())
-
+      let statementSource = _.replace(
+        expression,
+        (match, g1, g2, g3) =>
+          g1 + ' ' + _.flow(_.split(','), _.map(_.trim), _.sortBy(_.identity), _.join(', '))(g2) + ' ' + g3,
+        j(s).toSource()
+      )
       importStatements.push([moduleName, statementSource])
     }
   ).remove()
