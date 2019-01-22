@@ -2,7 +2,22 @@ const _ = require('lodash/fp')
 
 let transform = function (j, root) {
   let importStatements = []
-  root.find(j.ImportDeclaration).forEach(s => importStatements.push([s.value.source.value, j(s).toSource()])).remove()
+  root.find(j.ImportDeclaration).forEach(
+    s => {
+      const moduleName = s.value.source.value // e.g. 'lodash/fp'
+      let statementSource = _.flow(
+        _.replace(/\n/g, ' '),
+        _.replace(/\s{2,}/g, ' '),
+        _.replace(
+          /(.*\{)(.*)(\}.*)/,
+          (match, g1, g2, g3) =>
+            g1 + ' ' +  _.flow(_.split(','), _.map(_.trim), _.sortBy(_.identity), _.join(', '))(g2) + ' ' + g3
+        )
+      )(j(s).toSource())
+
+      importStatements.push([moduleName, statementSource])
+    }
+  ).remove()
 
   let g0 = [] // no prefix
   let g1 = [] // @
