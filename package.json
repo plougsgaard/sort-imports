@@ -11,8 +11,14 @@
     "sort-imports": "./bin/index.js"
   },
   "preferGlobal": true,
+  "scripts": {
+    "test": "standard"
+  },
   "dependencies": {
     "jscodeshift": "0.6.3",
     "lodash": "4.17.11"
+  },
+  "devDependencies": {
+    "standard": "12.0.1"
   }
 }
