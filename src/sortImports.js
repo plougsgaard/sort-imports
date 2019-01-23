@@ -3,18 +3,43 @@ const _ = require('lodash/fp')
 // the s flag makes it so . matches newlines as well (new feature)
 let expression = new RegExp('(.*\\{)(.*)(\\}.*)', 's')
 
+let pureBracketExpression = new RegExp('.*import\\s+\\{(.*)\\}.*', 's')
+
+let sortBracketImports = _.replace(
+  expression,
+  (match, g1, g2, g3) =>
+    g1 + ' ' + _.flow(_.split(','), _.map(_.trim), _.sortBy(_.identity), _.join(', '))(g2) + ' ' + g3
+)
+
+let expandTheseImportsIntoMultipleLines = ['@material-ui/core', '@material-ui/icons', 'react-native']
+let expandBracketImports = (moduleName, source) => {
+  const test = pureBracketExpression.exec(source)
+  if (!test) {
+    return [[moduleName, source]]
+  }
+  return _.flow(
+    _.last,
+    _.split(','),
+    _.map(_.trim),
+    _.map(name => {
+      const [ importName, importAlias ] = _.split(' as ', name)
+      const newModuleName = `${moduleName}/${importName}`
+      return [newModuleName, `import ${importAlias || importName} from '${newModuleName}'`]
+    })
+  )(test)
+}
+
 let transform = function (j, root) {
   let importStatements = []
   root.find(j.ImportDeclaration).forEach(
     s => {
       const moduleName = s.value.source.value // e.g. 'lodash/fp'
-      let statementSource = _.replace(
-        expression,
-        (match, g1, g2, g3) =>
-          g1 + ' ' + _.flow(_.split(','), _.map(_.trim), _.sortBy(_.identity), _.join(', '))(g2) + ' ' + g3,
-        j(s).toSource()
-      )
-      importStatements.push([moduleName, statementSource])
+      const source = j(s).toSource()
+      if (_.includes(moduleName, expandTheseImportsIntoMultipleLines)) {
+        importStatements = _.concat(importStatements, expandBracketImports(moduleName, source))
+      } else {
+        importStatements.push([moduleName, sortBracketImports(source)])
+      }
     }
   ).remove()
 
