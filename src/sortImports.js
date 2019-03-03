@@ -1,4 +1,4 @@
-const _ = require('lodash/fp')
+const _ = require('lya')
 
 // the s flag makes it so . matches newlines as well (new feature)
 let expression = new RegExp('(.*\\{)(.*)(\\}.*)', 's')
@@ -50,7 +50,7 @@ let transform = function (j, root) {
 
   _.flow(
     _.sortBy(_.first),
-    _.each(([val, line]) => {
+    _.map(([val, line]) => {
       if (_.startsWith('@', val)) {
         g1.push(line)
       } else if (_.startsWith('../', val)) {

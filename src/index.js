@@ -1,4 +1,4 @@
-var _ = require('lodash/fp')
+var _ = require('lya')
 var Runner = require('jscodeshift/dist/Runner')
 var path = require('path')
 
